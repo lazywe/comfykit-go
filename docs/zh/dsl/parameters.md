@@ -1,142 +1,151 @@
-# 参数
+# 参数语法
 
-学习如何在工作流中定义和使用参数�?
-## 基本参数
+## 参数类型
 
-使用 `$` 前缀定义参数�?
-```json
-{
-  "inputs": {
-    "text": "$prompt",
-    "seed": "$seed",
-    "steps": "$steps"
-  }
-}
+ComfyKit-Go 支持多种参数类型：
+
+### 1. 基本参数
+
+```
+$param
 ```
 
-执行时传递值：
+基本参数可以是任意类型的值。
+
+**示例**：
+```
+Seed, $seed
+```
+
+### 2. 必填参数
+
+```
+$param!
+```
+
+必填参数如果没有提供会导致错误。
+
+**示例**：
+```
+Prompt, $prompt!
+```
+
+### 3. 媒体参数
+
+```
+$~param
+```
+
+媒体参数用于上传文件（图片、音频、视频等）。
+
+**示例**：
+```
+Image Input, $~image
+```
+
+### 4. 字段映射
+
+```
+$param.field
+```
+
+字段映射允许你将参数映射到工作流中的特定字段。
+
+**示例**：
+```
+Model, $model.name
+```
+
+## 参数值类型
+
+### 字符串
 
 ```go
 params := map[string]interface{}{
-    "prompt": "美丽的日�?,
-    "seed":   12345,
-    "steps":  25,
-}
-
-result, err := kit.Execute("workflow.json", params)
-```
-
-## 必填参数
-
-使用 `!` 标记必填参数�?
-```json
-{
-  "inputs": {
-    "text": "$prompt!"
-  }
+    "prompt": "一只可爱的猫",
 }
 ```
 
-如果未提供必填参数，ComfyKit �?panic�?
-```go
-// 这会 panic，因�?"prompt" 是必填的
-result, err := kit.Execute("workflow.json", nil)
-```
-
-## 媒体上传参数
-
-使用 `~` 标记需要媒体上传的参数�?
-```json
-{
-  "inputs": {
-    "image": "$~input_image"
-  }
-}
-```
-
-ComfyKit 将自动上传媒体文件：
+### 整数
 
 ```go
 params := map[string]interface{}{
-    "input_image": "/path/to/image.png",      // 本地文件
-    // 或�?    "input_image": "https://example.com/img.jpg",  // URL
+    "seed": 42,
 }
 ```
 
-## 必填媒体上传
+### 浮点数
 
-组合两个标记�?
-```json
-{
-  "inputs": {
-    "image": "$~input_image!"
-  }
-}
-```
-
-## 字段访问
-
-使用点号访问嵌套字段�?
-```json
-{
-  "inputs": {
-    "text": "$prompt.text"
-  }
-}
-```
-
-使用嵌套参数�?
 ```go
 params := map[string]interface{}{
-    "prompt": map[string]interface{}{
-        "text": "美丽的日�?,
-        "style": "电影风格",
-    },
+    "cfg": 7.5,
 }
 ```
 
-## 支持的参数类�?
-| 类型 | 描述 | 示例 |
-|------|------|------|
-| `str` | 字符�?| `"hello"` |
-| `int` | 整数 | `42` |
-| `float` | 浮点�?| `3.14` |
-| `bool` | 布尔�?| `true` |
-| `image` | 图片路径/URL | `/path/to/img.png` |
-| `audio` | 音频路径/URL | `/path/to/audio.mp3` |
-| `video` | 视频路径/URL | `/path/to/video.mp4` |
+### 布尔值
 
-## 默认�?
-您可以在工作流元数据中定义默认值：
-
-```json
-{
-  "__metadata__": {
-    "params": {
-      "prompt": {
-        "type": "str",
-        "required": true,
-        "default": "美丽的场�?
-      },
-      "seed": {
-        "type": "int",
-        "required": false,
-        "default": 0
-      }
-    }
-  }
+```go
+params := map[string]interface{}{
+    "enable": true,
 }
 ```
+
+### 数组
+
+```go
+params := map[string]interface{}{
+    "steps": []int{10, 20, 30},
+}
+```
+
+## 参数默认值
+
+你可以为参数设置默认值：
+
+```go
+params := map[string]interface{}{
+    "seed": 42, // 默认值
+}
+```
+
+如果用户没有提供参数，将使用默认值。
 
 ## 参数验证
 
-ComfyKit 验证参数�?
-1. **必填检�?*: 确保提供必填参数
-2. **类型检�?*: 尝试将值转换为预期类型
-3. **媒体检�?*: 验证媒体文件存在�?URL 有效
+### 必填参数验证
 
-## 最佳实�?
-1. **使用描述性名�?*: 使用清晰的参数名称如 `prompt`, `seed`, `steps`
-2. **标记必填参数**: 对必填参数使�?`!`
-3. **使用媒体上传**: 对图�?音频/视频输入使用 `~`
-4. **提供默认�?*: 尽可能在元数据中定义默认�?5. **文档参数**: 添加注释或元数据描述参数
+如果标记为必填的参数没有提供，会返回错误：
+
+```go
+result, err := kit.Execute("workflow.json", map[string]interface{}{})
+// 如果 workflow.json 包含 $prompt!，但没有提供 prompt 参数，会返回错误
+```
+
+### 类型验证
+
+ComfyKit-Go 会尝试将参数转换为正确的类型：
+
+```go
+params := map[string]interface{}{
+    "seed": "42", // 字符串会自动转换为整数
+}
+```
+
+## 示例
+
+### 工作流节点标题
+
+```
+Prompt: $prompt!, Seed: $seed, Steps: $steps
+```
+
+### 执行代码
+
+```go
+params := map[string]interface{}{
+    "prompt": "一只可爱的猫",
+    "seed":   42,
+    "steps":  30,
+}
+result, err := kit.Execute("workflow.json", params)
+```

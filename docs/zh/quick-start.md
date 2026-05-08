@@ -1,12 +1,8 @@
-# 快速开�?
-几分钟内开始使�?ComfyKit-Go�?
-## 安装
+# 快速开始
 
-```bash
-go get github.com/lazywe/comfykit-go
-```
+## 第一个程序
 
-## 基本用法
+创建你的第一个 ComfyKit-Go 程序：
 
 ```go
 package main
@@ -20,55 +16,44 @@ func main() {
     // 创建 ComfyKit 实例
     kit := comfykit.NewComfyKit()
     
-    // 执行工作�?    result, err := kit.Execute(
-        "workflows/t2i.json",
-        map[string]interface{}{
-            "prompt": "海上美丽的日�?,
-        },
-    )
-    
+    // 执行工作流
+    result, err := kit.Execute("workflow.json", map[string]interface{}{
+        "prompt": "一只可爱的猫",
+        "seed":   42,
+    })
     if err != nil {
         fmt.Printf("错误: %v\n", err)
         return
     }
     
-    // 检查结�?    fmt.Printf("状�? %s\n", result.Status)
-    fmt.Printf("生成�?%d 张图片\n", len(result.Images))
-    
-    for i, img := range result.Images {
-        fmt.Printf("图片 %d: %s\n", i+1, img)
-    }
+    // 处理结果
+    fmt.Printf("状态: %s\n", result.Status)
+    fmt.Printf("图片数量: %d\n", len(result.Images))
 }
 ```
 
-## 核心概念
+## 运行程序
 
-### 工作流源
-
-ComfyKit 自动检测工作流源：
-
-1. **RunningHub ID**: 纯数字字符串（如 "12345"�?2. **URL**: �?`http://` �?`https://` 开�?3. **文件路径**: 本地文件路径
-
-### 参数
-
-在工作流 JSON 中使�?`$param` 语法定义参数�?
-```json
-{
-  "text": "$prompt",
-  "seed": "$seed"
-}
+```bash
+go run main.go
 ```
 
-执行时传递值：
+## 工作流文件
 
-```go
-params := map[string]interface{}{
-    "prompt": "我的提示�?,
-    "seed":   12345,
-}
-```
+工作流文件是一个 JSON 文件，包含 ComfyUI 工作流的定义。你可以在 ComfyUI 中导出工作流，然后使用 ComfyKit-Go 来执行它。
 
-## 下一�?
-- [配置](configuration.md) - 了解配置选项
-- [本地执行](usage/local.md) - 在本�?ComfyUI 上执行工作流
-- [云端执行](usage/cloud.md) - �?RunningHub 上执行工作流
+## 参数映射
+
+ComfyKit-Go 支持简单的 DSL 语法来定义工作流参数：
+
+- `$param` - 基本参数
+- `$param!` - 必填参数
+- `$~param` - 需要媒体上传的参数
+
+示例工作流节点标题：`"Prompt, $prompt!, $seed"`
+
+## 下一步
+
+- 查看 [配置](configuration.md) 文档了解更多配置选项
+- 查看 [API 参考](api-reference.md) 了解完整的 API
+- 查看 [示例](examples.md) 了解更多使用示例

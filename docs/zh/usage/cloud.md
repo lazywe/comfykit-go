@@ -1,156 +1,162 @@
 # 云端执行
 
-�?RunningHub 云平台上执行工作流�?
 ## 前提条件
 
-1. 注册 RunningHub 账户：https://www.runninghub.ai
-2. �?RunningHub 控制台获�?API 密钥
+在使用云端执行功能之前，需要：
 
-## 配置
+1. 在 RunningHub 平台注册账号
+2. 获取 API Key
+3. 设置环境变量或通过代码配置
 
-```go
-kit := comfykit.NewComfyKit(
-    comfykit.WithRunningHubAPIKey("your-api-key"),
-)
-```
+## 基本用法
 
-## �?RunningHub ID 执行
+### 执行 RunningHub 工作流
 
 ```go
-result, err := kit.Execute("12345", nil)
+import "github.com/lazywe/comfykit-go"
+
+// 设置 API Key
+os.Setenv("RUNNINGHUB_API_KEY", "your-api-key")
+
+kit := comfykit.NewComfyKit()
+
+result, err := kit.Execute("12345", map[string]interface{}{
+    "prompt": "一只可爱的猫",
+    "seed":   42,
+})
 if err != nil {
     fmt.Printf("错误: %v\n", err)
     return
 }
-
-fmt.Printf("状�? %s\n", result.Status)
-fmt.Printf("生成�?%d 张图片\n", len(result.Images))
 ```
 
-## 带参数执�?
+## 配置 RunningHub
+
+### 通过代码配置
+
 ```go
-params := map[string]interface{}{
-    "prompt": "未来城市",
-    "seed":   12345,
-    "steps":  30,
-}
-
-result, err := kit.Execute("12345", params)
+kit := comfykit.NewComfyKit(
+    comfykit.WithRunningHubAPIKey("your-api-key"),
+    comfykit.WithRunningHubTimeout(300),
+    comfykit.WithRunningHubInstance("plus"),
+)
 ```
 
-## 执行 RunningHub 工作流文�?
-您也可以执行包含 RunningHub 元数据的本地工作流文件：
+### 使用环境变量
 
-```json
-{
-  "_source": "runninghub",
-  "workflow_id": "12345",
-  "params": {
-    "prompt": "$prompt",
-    "seed": "$seed"
-  }
-}
+```bash
+# Linux/macOS
+export RUNNINGHUB_API_KEY=your-api-key
+export RUNNINGHUB_TIMEOUT=300
+
+# Windows PowerShell
+$env:RUNNINGHUB_API_KEY='your-api-key'
+$env:RUNNINGHUB_TIMEOUT='300'
 ```
+
+## 执行模式
+
+### 按工作流 ID 执行
+
+```go
+result, err := kit.Execute("12345", map[string]interface{}{
+    "prompt": "美丽的日落",
+})
+```
+
+### 按工作流文件执行
 
 ```go
 result, err := kit.Execute("workflows/my_runninghub_workflow.json", params)
 ```
 
-## 云端特定选项
+### 自动检测
 
-### 超时
+ComfyKit-Go 会自动检测工作流类型：
 
-```go
-kit := comfykit.NewComfyKit(
-    comfykit.WithRunningHubAPIKey("your-api-key"),
-    comfykit.WithRunningHubTimeout(600), // 10 分钟
-)
-```
+- **RunningHub ID**: 纯数字字符串（如 "12345"）
+- **URL**: 以 http:// 或 https:// 开头
+- **文件路径**: 包含 / 或 \
+- **RunningHub 工作流文件**: 包含 `_source: runninghub`
 
-### 实例类型
+## 完整示例
 
 ```go
-kit := comfykit.NewComfyKit(
-    comfykit.WithRunningHubAPIKey("your-api-key"),
-    comfykit.WithRunningHubInstance("plus"),
-)
-```
+package main
 
-可用的实例类型：
-- `standard` - 默认实例
-- `plus` - 增强性能
-- `pro` - 高级性能
-- `gpu` - GPU 加�?
-### 重试次数
-
-```go
-kit := comfykit.NewComfyKit(
-    comfykit.WithRunningHubAPIKey("your-api-key"),
-    comfykit.WithRunningHubRetry(5),
-)
-```
-
-## 混合执行
-
-您可以使用同一�?ComfyKit 实例进行本地和云端执行：
-
-```go
-kit := comfykit.NewComfyKit(
-    comfykit.WithRunningHubAPIKey("your-api-key"),
+import (
+    "fmt"
+    "os"
+    "github.com/lazywe/comfykit-go"
 )
 
-// 本地执行
-localResult, _ := kit.Execute("workflows/local.json", params)
-
-// 云端执行
-cloudResult, _ := kit.Execute("12345", params)
-```
-
-## 自动检�?
-ComfyKit 自动检测工作流源：
-
-```go
-kit := comfykit.NewComfyKit()
-
-// 自动检�?RunningHub ID
-result, _ := kit.Execute("12345", params)
-
-// 自动检�?URL
-result, _ := kit.Execute("https://example.com/workflow.json", params)
-
-// 自动检测本地文�?result, _ := kit.Execute("workflows/local.json", params)
+func main() {
+    // 设置 API Key
+    apiKey := os.Getenv("RUNNINGHUB_API_KEY")
+    if apiKey == "" {
+        fmt.Println("请设置 RUNNINGHUB_API_KEY 环境变量")
+        return
+    }
+    
+    // 创建 ComfyKit 实例
+    kit := comfykit.NewComfyKit(
+        comfykit.WithRunningHubAPIKey(apiKey),
+        comfykit.WithRunningHubTimeout(300),
+    )
+    
+    // 定义参数
+    params := map[string]interface{}{
+        "prompt": "一只可爱的猫",
+        "seed":   42,
+        "steps":  20,
+    }
+    
+    // 执行工作流（使用 RunningHub ID）
+    result, err := kit.Execute("12345", params)
+    if err != nil {
+        fmt.Printf("执行错误: %v\n", err)
+        return
+    }
+    
+    // 处理结果
+    fmt.Printf("状态: %s\n", result.Status)
+    fmt.Printf("执行时长: %.2f 秒\n", result.Duration)
+    fmt.Printf("任务 ID: %s\n", result.PromptID)
+    fmt.Printf("生成图片: %d 张\n", len(result.Images))
+    
+    for i, imageURL := range result.Images {
+        fmt.Printf("图片 %d: %s\n", i+1, imageURL)
+    }
+}
 ```
 
 ## 故障排除
 
-### API 密钥未设�?
+### API Key 未设置
+
+确保设置了 `RUNNINGHUB_API_KEY` 环境变量：
+
 ```bash
-export RUNNINGHUB_API_KEY="your-api-key"
+export RUNNINGHUB_API_KEY=your-api-key
 ```
 
-或通过编程方式设置�?
+### 工作流 ID 不存在
+
+检查工作流 ID 是否正确：
+
 ```go
-kit := comfykit.NewComfyKit(
-    comfykit.WithRunningHubAPIKey("your-api-key"),
-)
+result, err := kit.Execute("12345", params)
+if err != nil {
+    fmt.Printf("工作流不存在或无权访问: %v\n", err)
+}
 ```
 
 ### 任务超时
 
-增加超时时间�?
+增加超时时间：
+
 ```go
 kit := comfykit.NewComfyKit(
-    comfykit.WithRunningHubAPIKey("your-api-key"),
-    comfykit.WithRunningHubTimeout(1200), // 20 分钟
+    comfykit.WithRunningHubTimeout(600), // 10 分钟
 )
 ```
-
-### 工作流未找到
-
-确保工作�?ID 存在于您�?RunningHub 账户中�?
-## 云端优势
-
-- 无需维护本地 GPU
-- 访问强大�?GPU（NVIDIA A100, RTX 4090�?- 自动扩展
-- 按需付费
-- 内置工作流管�?

@@ -1,47 +1,54 @@
 # 本地执行
 
-在本�?ComfyUI 服务器上执行工作流�?
-
 ## 前提条件
 
-1. 安装并运�?ComfyUI�?
-   ```bash
-   git clone https://github.com/comfyanonymous/ComfyUI.git
-   cd ComfyUI
-   python main.py
-   ```
+在使用本地执行功能之前，需要：
 
-2. ComfyUI 将在 `http://127.0.0.1:8188` 可用
+1. 安装并运行 ComfyUI 服务器
+2. 确保 ComfyUI 服务器可以访问（默认地址：`http://127.0.0.1:8188`）
 
-## 基本本地执行
+## 基本用法
+
+### 执行本地工作流文件
 
 ```go
+import "github.com/lazywe/comfykit-go"
+
 kit := comfykit.NewComfyKit()
 
-result, err := kit.Execute("workflows/my_workflow.json", nil)
+result, err := kit.Execute("workflow.json", map[string]interface{}{
+    "prompt": "一只可爱的猫",
+    "seed":   42,
+})
 if err != nil {
     fmt.Printf("错误: %v\n", err)
     return
 }
-
-fmt.Printf("状�? %s\n", result.Status)
 ```
 
-## 自定�?ComfyUI URL
+## 配置 ComfyUI 服务器
+
+### 设置自定义地址
 
 ```go
 kit := comfykit.NewComfyKit(
-    comfykit.WithComfyUIBaseURL("http://my-comfyui-server:8188"),
+    comfykit.WithComfyUIBaseURL("http://localhost:8188"),
 )
-
-result, err := kit.Execute("workflows/my_workflow.json", nil)
 ```
 
-## 执行器类�?
+### 使用环境变量
 
-ComfyKit 支持两种本地执行器类型：
+```bash
+# Linux/macOS
+export COMFYUI_BASE_URL=http://localhost:8188
 
-### HTTP 执行器（默认�?
+# Windows PowerShell
+$env:COMFYUI_BASE_URL='http://localhost:8188'
+```
+
+## 执行器类型
+
+### HTTP 执行器
 
 ```go
 kit := comfykit.NewComfyKit(
@@ -49,7 +56,7 @@ kit := comfykit.NewComfyKit(
 )
 ```
 
-### WebSocket 执行�?
+### WebSocket 执行器
 
 ```go
 kit := comfykit.NewComfyKit(
@@ -57,92 +64,9 @@ kit := comfykit.NewComfyKit(
 )
 ```
 
-**何时使用 WebSocket�?*
-- 实时进度更新
-- 长时间运行的工作�?
-- 更低的状态更新延�?
+## 认证配置
 
-## 认证
-
-### API 密钥
-
-```go
-kit := comfykit.NewComfyKit(
-    comfykit.WithAPIKey("my-comfyui-api-key"),
-)
-```
-
-### Cookies
-
-```go
-kit := comfykit.NewComfyKit(
-    comfykit.WithCookies("session=abc123; token=xyz"),
-)
-```
-
-## 工作流参�?
-
-```go
-params := map[string]interface{}{
-    "prompt": "美丽的日�?,
-    "seed":   42,
-    "steps":  25,
-    "cfg":    7.0,
-}
-
-result, err := kit.Execute("workflows/t2i.json", params)
-```
-
-## 媒体上传
-
-ComfyKit 自动处理图像/音频/视频输入的媒体上传：
-
-```go
-params := map[string]interface{}{
-    "input_image": "/path/to/image.png",      // 本地文件
-    "reference_image": "https://example.com/img.jpg",  // URL
-}
-
-result, err := kit.Execute("workflows/img2img.json", params)
-```
-
-## 本地工作流示�?
-
-### 文本转图�?
-
-```go
-result, err := kit.Execute(
-    "workflows/t2i.json",
-    map[string]interface{}{
-        "prompt": "带有城堡的幻想风�?,
-        "seed":   12345,
-    },
-)
-```
-
-### 图像转图�?
-
-```go
-result, err := kit.Execute(
-    "workflows/img2img.json",
-    map[string]interface{}{
-        "input_image": "/path/to/input.jpg",
-        "prompt":      "让它看起来像一幅画",
-        "denoise":     0.7,
-    },
-)
-```
-
-## 故障排除
-
-### 连接被拒�?
-
-```bash
-# 确保 ComfyUI 正在运行
-python main.py --listen 0.0.0.0 --port 8188
-```
-
-### 认证错误
+### API Key
 
 ```go
 kit := comfykit.NewComfyKit(
@@ -150,11 +74,80 @@ kit := comfykit.NewComfyKit(
 )
 ```
 
-### 超时问题
+### Cookies
 
 ```go
-// WebSocket 执行器可能有助于长时间运行的工作�?
 kit := comfykit.NewComfyKit(
-    comfykit.WithExecutorType(comfykit.ExecutorTypeWebSocket),
+    comfykit.WithCookies("session=abc123"),
 )
+```
+
+## 完整示例
+
+```go
+package main
+
+import (
+    "fmt"
+    "github.com/lazywe/comfykit-go"
+)
+
+func main() {
+    // 创建 ComfyKit 实例，配置本地 ComfyUI 服务器
+    kit := comfykit.NewComfyKit(
+        comfykit.WithComfyUIBaseURL("http://localhost:8188"),
+        comfykit.WithExecutorType(comfykit.ExecutorTypeHTTP),
+        comfykit.WithAPIKey("your-api-key"),
+    )
+    
+    // 定义参数
+    params := map[string]interface{}{
+        "prompt": "一只可爱的猫",
+        "seed":   42,
+        "steps":  20,
+    }
+    
+    // 执行工作流
+    result, err := kit.Execute("workflows/t2i_by_local_flux.json", params)
+    if err != nil {
+        fmt.Printf("执行错误: %v\n", err)
+        return
+    }
+    
+    // 处理结果
+    fmt.Printf("状态: %s\n", result.Status)
+    fmt.Printf("执行时长: %.2f 秒\n", result.Duration)
+    fmt.Printf("生成图片: %d 张\n", len(result.Images))
+    
+    for i, imageURL := range result.Images {
+        fmt.Printf("图片 %d: %s\n", i+1, imageURL)
+    }
+}
+```
+
+## 故障排除
+
+### ComfyUI 服务器未运行
+
+如果收到 "connection refused" 错误，请确保 ComfyUI 服务器正在运行：
+
+```bash
+# 启动 ComfyUI
+python main.py
+```
+
+### 权限问题
+
+如果收到权限错误，请检查 API Key 或 Cookies 是否正确配置。
+
+### 工作流文件不存在
+
+确保工作流文件路径正确：
+
+```go
+// 使用绝对路径
+result, err := kit.Execute("/path/to/workflow.json", params)
+
+// 或使用相对路径（相对于当前工作目录）
+result, err := kit.Execute("workflows/workflow.json", params)
 ```

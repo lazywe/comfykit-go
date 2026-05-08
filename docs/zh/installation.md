@@ -1,27 +1,27 @@
 # 安装
 
-使用 Go modules 安装 ComfyKit-Go�?
-## 前提条件
+## 要求
 
-- Go 1.21 或更高版�?
-## 安装
+- Go 1.22 或更高版本
+
+## 安装方法
+
+使用 `go get` 命令安装：
 
 ```bash
 go get github.com/lazywe/comfykit-go
 ```
 
-## 导入
+## 更新
 
-```go
-import (
-    "github.com/lazywe/comfykit-go"
-    "github.com/lazywe/comfykit-go/comfyui"
-)
+```bash
+go get -u github.com/lazywe/comfykit-go
 ```
 
 ## 验证安装
 
-创建一个简单的测试文件�?
+创建一个简单的测试文件来验证安装是否成功：
+
 ```go
 package main
 
@@ -32,34 +32,14 @@ import (
 
 func main() {
     kit := comfykit.NewComfyKit()
-    fmt.Println("ComfyKit-Go 初始化成功！")
-    fmt.Printf("连接�? %s\n", kit.GetComfyUIBaseURL())
+    fmt.Println("ComfyKit-Go 安装成功!")
 }
 ```
 
-运行它：
+运行测试：
 
 ```bash
 go run main.go
 ```
 
-## 依赖
-
-ComfyKit-Go 使用以下外部包：
-
-- `github.com/gorilla/websocket` - WebSocket 支持
-- 标准库包
-
-## 开�?
-要贡献或本地开发：
-
-```bash
-git clone https://github.com/lazywe/comfykit-go.git
-cd comfykit-go
-go build ./...
-```
-
-运行测试�?
-```bash
-go test ./...
-```
+如果输出 "ComfyKit-Go 安装成功!"，则安装成功。

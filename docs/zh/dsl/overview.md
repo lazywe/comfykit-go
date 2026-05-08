@@ -1,102 +1,59 @@
-# DSL 概述
+# DSL 语法概述
 
-ComfyKit 使用简单的 DSL（领域特定语言）来定义工作流中的参数和输出�?
-## 语法
+ComfyKit-Go 支持简单的 DSL（领域特定语言）语法，用于在工作流节点标题中定义参数。
 
-DSL 使用简单的 `$` 前缀来标记参数：
+## 基本语法
+
+### 参数标记
+
+| 语法 | 描述 | 示例 |
+|------|------|------|
+| `$param` | 基本参数 | `$prompt` |
+| `$param!` | 必填参数 | `$prompt!` |
+| `$~param` | 需要媒体上传的参数 | `$~image` |
+| `$param.field` | 映射到特定字段的参数 | `$model.name` |
+| `$output.varname` | 输出变量名 | `$output.result` |
+
+### 使用示例
+
+在 ComfyUI 工作流中，你可以在节点标题中使用这些标记：
+
+```
+Prompt, $prompt!, $seed
+```
+
+这个节点标题定义了两个参数：
+- `$prompt!` - 必填的提示词参数
+- `$seed` - 可选的随机种子参数
+
+## 参数类型推断
+
+ComfyKit-Go 会自动推断参数类型：
+
+- 字符串（如 `"hello"`）
+- 整数（如 `42`）
+- 浮点数（如 `3.14`）
+- 布尔值（`true` 或 `false`）
+- 数组（如 `[1, 2, 3]`）
+- 对象（如 `{"key": "value"}`）
+
+## 工作流示例
 
 ```json
 {
-  "inputs": {
-    "text": "$prompt",
-    "seed": "$seed",
-    "image": "$~input_image"
+  "3": {
+    "inputs": {
+      "text": "$prompt!",
+      "seed": "$seed"
+    },
+    "class_type": "CLIPTextEncode",
+    "_title": "Prompt, $prompt!, $seed"
   }
 }
 ```
 
-## 参数类型
+## 下一步
 
-### 基本参数
-
-```json
-"text": "$prompt"
-```
-
-接受任何值的基本参数�?
-### 必填参数
-
-```json
-"text": "$prompt!"
-```
-
-标记参数为必填�?
-### 媒体上传参数
-
-```json
-"image": "$~input_image"
-```
-
-标记参数需要媒体上传�?
-### 必填媒体上传
-
-```json
-"image": "$~input_image!"
-```
-
-必填且需要媒体上传的参数�?
-### 字段访问
-
-```json
-"text": "$prompt.text"
-```
-
-访问参数中的嵌套字段�?
-## 输出标记
-
-```json
-{
-  "inputs": {
-    "filename_prefix": "$output.result"
-  }
-}
-```
-
-用变量名标记输出节点�?
-## 完整示例
-
-```json
-{
-  "nodes": [
-    {
-      "id": "1",
-      "type": "CLIPTextEncode",
-      "inputs": {
-        "text": "$prompt!"  // 必填参数
-      }
-    },
-    {
-      "id": "2",
-      "type": "LoadImage",
-      "inputs": {
-        "image": "$~input_image"  // 媒体上传参数
-      }
-    },
-    {
-      "id": "3",
-      "type": "SaveImage",
-      "inputs": {
-        "images": ["4", 0],
-        "filename_prefix": "$output.result"  // 输出标记
-      }
-    }
-  ]
-}
-```
-
-## 优势
-
-- **简�?*: 易于理解的语�?- **灵活**: 支持各种参数类型
-- **自动**: ComfyKit 自动处理参数注入
-- **验证**: 内置必填参数验证
-- **媒体处理**: 自动媒体上传支持
+- 查看 [参数](parameters.md) 了解更多参数语法
+- 查看 [输出](outputs.md) 了解输出变量
+- 查看 [最佳实践](best-practices.md) 了解使用建议

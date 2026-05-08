@@ -1,6 +1,9 @@
-# 许可�?
-ComfyKit-Go 使用 MIT 许可证�?
-## MIT 许可�?
+# 许可证
+
+ComfyKit-Go 使用 MIT 许可证。
+
+## MIT License
+
 ```
 MIT License
 
@@ -24,15 +27,3 @@ LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
 OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 SOFTWARE.
 ```
-
-## 第三方库
-
-ComfyKit-Go 使用以下第三方库�?
-- **gorilla/websocket** (BSD-2-Clause License)
-  - Go �?WebSocket 支持
-
-- **标准�?*
-  - 所有标准库包使�?Go 许可�?
-## 致谢
-
-如果您在项目中使�?ComfyKit-Go，请包含对本仓库的引用�?
