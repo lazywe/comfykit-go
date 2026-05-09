@@ -127,6 +127,120 @@ result, _ := kit.Execute("https://example.com/workflow.json", params)
 result, _ := kit.Execute("workflows/local.json", params)
 ```
 
+## Asynchronous Execution
+
+For more flexible task management, you can use asynchronous methods that don't block execution.
+
+### Create Task Asynchronously
+
+```go
+import "time"
+
+// Create a task without waiting for completion
+taskID, outputID2Var, err := kit.ExecuteAsyncByID("12345", map[string]interface{}{
+    "prompt": "a cute cat",
+})
+if err != nil {
+    fmt.Printf("Failed to create task: %v\n", err)
+    return
+}
+
+fmt.Printf("Task created: %s\n", taskID)
+fmt.Printf("Output nodes: %v\n", outputID2Var)
+```
+
+### Poll for Task Completion
+
+```go
+import "time"
+
+// Poll for task completion
+checkInterval := 2 * time.Second
+maxChecks := 30 // Max checks before giving up
+
+for i := 0; i < maxChecks; i++ {
+    result, completed, err := kit.GetTaskCompletion(taskID, outputID2Var)
+    if err != nil {
+        fmt.Printf("Status check error: %v, retrying...\n", err)
+        time.Sleep(checkInterval)
+        continue
+    }
+    
+    if completed {
+        if result.Status == "completed" {
+            fmt.Printf("Task completed! Generated %d images\n", len(result.Images))
+            for _, img := range result.Images {
+                fmt.Printf("  - %s\n", img)
+            }
+        } else {
+            fmt.Printf("Task failed: %s - %s\n", result.Status, result.Message)
+        }
+        break
+    }
+    
+    fmt.Printf("Check %d/%d: Task still running...\n", i+1, maxChecks)
+    time.Sleep(checkInterval)
+}
+```
+
+### Manage Multiple Tasks
+
+```go
+import "time"
+
+// Define multiple tasks
+tasks := []struct {
+    Prompt string
+    TaskID string
+    Output map[string]string
+}{
+    {Prompt: "red roses"},
+    {Prompt: "blue ocean"},
+    {Prompt: "green forest"},
+}
+
+// Create all tasks
+for i := range tasks {
+    taskID, outputID2Var, err := kit.ExecuteAsyncByID("12345", map[string]interface{}{
+        "prompt": tasks[i].Prompt,
+    })
+    if err != nil {
+        fmt.Printf("Failed to create task %d: %v\n", i, err)
+        continue
+    }
+    tasks[i].TaskID = taskID
+    tasks[i].Output = outputID2Var
+    fmt.Printf("Task %d created: %s\n", i, taskID)
+}
+
+// Poll for all tasks to complete
+remaining := len(tasks)
+for remaining > 0 {
+    for i := range tasks {
+        if tasks[i].TaskID == "" {
+            continue // Already completed
+        }
+        
+        result, completed, err := kit.GetTaskCompletion(tasks[i].TaskID, tasks[i].Output)
+        if err != nil {
+            continue
+        }
+        
+        if completed {
+            remaining--
+            tasks[i].TaskID = "" // Mark as completed
+            if result.Status == "completed" {
+                fmt.Printf("Task %d completed: %d images\n", i, len(result.Images))
+            } else {
+                fmt.Printf("Task %d failed: %s\n", i, result.Message)
+            }
+        }
+    }
+    
+    time.Sleep(2 * time.Second)
+}
+```
+
 ## Troubleshooting
 
 ### API Key Not Set

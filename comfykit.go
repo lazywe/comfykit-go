@@ -282,6 +282,24 @@ func (k *ComfyKit) ExecuteJSON(workflowJSON map[string]interface{}, params map[s
 	return k.Execute(tempPath, params)
 }
 
+// ExecuteAsyncByID 异步创建 RunningHub 任务
+// 参数：
+//   workflowID - RunningHub 工作流 ID
+//   params - 用户提供的参数映射
+// 返回：任务 ID、输出节点映射、错误信息
+func (k *ComfyKit) ExecuteAsyncByID(workflowID string, params map[string]interface{}) (string, map[string]string, error) {
+	return k.getRunninghubExecutor().ExecuteAsyncByID(workflowID, params)
+}
+
+// GetTaskCompletion 检查任务状态并在完成时获取结果
+// 参数：
+//   taskID - 任务 ID
+//   outputID2Var - 输出节点 ID 到变量名的映射
+// 返回：执行结果、是否完成、错误信息
+func (k *ComfyKit) GetTaskCompletion(taskID string, outputID2Var map[string]string) (*comfyui.ExecuteResult, bool, error) {
+	return k.getRunninghubExecutor().GetTaskCompletion(taskID, outputID2Var)
+}
+
 func downloadFile(url string) (string, error) {
 	resp, err := http.Get(url)
 	if err != nil {

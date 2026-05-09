@@ -28,6 +28,7 @@ func main() {
 		"03_local_workflows.go",
 		"04_runninghub_cloud.go",
 		"05_advanced_features.go",
+		"06_async_execution.go",
 	}
 
 	successCount := 0
@@ -37,7 +38,7 @@ func main() {
 	// 获取当前源文件所在目录的绝对路径
 	_, filename, _, ok := runtime.Caller(0)
 	if !ok {
-		fmt.Println("�?Failed to get source file path")
+		fmt.Println("�?Failed to get source file path")
 		os.Exit(1)
 	}
 	examplesDir := filepath.Dir(filename)
@@ -59,12 +60,12 @@ func main() {
 				fmt.Println("  ⏭️  Skipped (ComfyUI not running)")
 				skipCount++
 			} else {
-				fmt.Printf("  �?Failed: %v\n", err)
+				fmt.Printf("  �?Failed: %v\n", err)
 				fmt.Printf("     Output: %s\n", outputStr)
 				failureCount++
 			}
 		} else {
-			fmt.Println("  �?Success")
+			fmt.Println("  �?Success")
 			successCount++
 		}
 		fmt.Println()

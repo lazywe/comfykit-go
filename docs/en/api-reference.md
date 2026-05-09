@@ -36,6 +36,12 @@ func (k *ComfyKit) Execute(workflow string, params map[string]interface{}) (*Exe
 // Execute workflow from JSON
 func (k *ComfyKit) ExecuteJSON(workflowJSON map[string]interface{}, params map[string]interface{}) (*ExecuteResult, error)
 
+// Create a RunningHub task asynchronously
+func (k *ComfyKit) ExecuteAsyncByID(workflowID string, params map[string]interface{}) (string, map[string]string, error)
+
+// Check task status and get result when complete
+func (k *ComfyKit) GetTaskCompletion(taskID string, outputID2Var map[string]string) (*ExecuteResult, bool, error)
+
 // Close all resources
 func (k *ComfyKit) Close() error
 

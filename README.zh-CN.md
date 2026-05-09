@@ -7,7 +7,7 @@
 
 ComfyKit-Go 是一个用于执行 ComfyUI 工作流的 Go SDK。它提供了一个简单、符合 Go 语言习惯的 API，用于在本地和 RunningHub 云平台上运行 ComfyUI 工作流。
 
-本项目是 [ComfyKit-python](https://github.com/runninghubai/comfykit-python) 的 **Go 语言版本**，保持相同的目录结构、函数名称和 API 设计。
+本项目是 [ComfyKit-python](https://https://github.com/puke3615/ComfyKit) 的 **Go 语言版本**，保持相同的目录结构、函数名称和 API 设计。
 
 ## 特性
 
@@ -102,6 +102,44 @@ result, err := kit.Execute("https://example.com/workflow.json", map[string]inter
 })
 ```
 
+### 异步执行
+
+```go
+import "time"
+
+// 异步创建任务
+taskID, outputID2Var, err := kit.ExecuteAsyncByID("12345", map[string]interface{}{
+    "prompt": "一只可爱的猫",
+})
+if err != nil {
+    fmt.Printf("创建任务失败: %v\n", err)
+    return
+}
+
+// 轮询任务状态
+for {
+    result, completed, err := kit.GetTaskCompletion(taskID, outputID2Var)
+    if err != nil {
+        fmt.Printf("检查状态错误: %v\n", err)
+        time.Sleep(2 * time.Second)
+        continue
+    }
+    
+    if completed {
+        fmt.Printf("任务完成: %s\n", result.Status)
+        if result.Status == "completed" {
+            fmt.Printf("生成了 %d 张图片\n", len(result.Images))
+        } else {
+            fmt.Printf("任务失败: %s\n", result.Message)
+        }
+        break
+    }
+    
+    fmt.Println("任务还在运行中...")
+    time.Sleep(2 * time.Second)
+}
+```
+
 ## 工作流 DSL
 
 ComfyKit 支持在工作流标题中定义参数的简单 DSL：
@@ -135,6 +173,8 @@ ComfyKit 支持在工作流标题中定义参数的简单 DSL：
 - `NewComfyKit(opts ...ComfyKitOption) *ComfyKit` - 创建新的 ComfyKit 实例
 - `Execute(workflow string, params map[string]interface{}) (*ExecuteResult, error)` - 执行工作流
 - `ExecuteJSON(workflowJSON map[string]interface{}, params map[string]interface{}) (*ExecuteResult, error)` - 从 JSON 执行工作流
+- `ExecuteAsyncByID(workflowID string, params map[string]interface{}) (string, map[string]string, error)` - 异步创建任务
+- `GetTaskCompletion(taskID string, outputID2Var map[string]string) (*ExecuteResult, bool, error)` - 检查任务状态
 - `Close() error` - 清理资源
 
 ### ExecuteResult
@@ -151,7 +191,7 @@ ComfyKit 支持在工作流标题中定义参数的简单 DSL：
 
 ## 致谢
 
-本项目受到 [ComfyKit-python](https://github.com/runninghubai/comfykit-python) 的启发并基于其构建。我们要感谢原项目的出色设计和实现。
+本项目受到 [ComfyKit-python](https://https://github.com/puke3615/ComfyKit) 的启发并基于其构建。我们要感谢原项目的出色设计和实现。
 
 ## 许可证
 

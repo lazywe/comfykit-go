@@ -7,7 +7,7 @@
 
 ComfyKit-Go is a Go SDK for executing ComfyUI workflows. It provides a simple, idiomatic Go API for running ComfyUI workflows both locally and on the RunningHub cloud platform.
 
-This project is the **Go language port** of [ComfyKit-python](https://github.com/runninghubai/comfykit-python), maintaining the same directory structure, function names, and API design.
+This project is the **Go language port** of [ComfyKit-python](https://https://github.com/puke3615/ComfyKit), maintaining the same directory structure, function names, and API design.
 
 ## Features
 
@@ -102,6 +102,44 @@ result, err := kit.Execute("https://example.com/workflow.json", map[string]inter
 })
 ```
 
+### Asynchronous Execution
+
+```go
+import "time"
+
+// Create task asynchronously
+taskID, outputID2Var, err := kit.ExecuteAsyncByID("12345", map[string]interface{}{
+    "prompt": "a cute cat",
+})
+if err != nil {
+    fmt.Printf("Failed to create task: %v\n", err)
+    return
+}
+
+// Poll task status
+for {
+    result, completed, err := kit.GetTaskCompletion(taskID, outputID2Var)
+    if err != nil {
+        fmt.Printf("Status check error: %v\n", err)
+        time.Sleep(2 * time.Second)
+        continue
+    }
+    
+    if completed {
+        fmt.Printf("Task completed: %s\n", result.Status)
+        if result.Status == "completed" {
+            fmt.Printf("Generated %d images\n", len(result.Images))
+        } else {
+            fmt.Printf("Task failed: %s\n", result.Message)
+        }
+        break
+    }
+    
+    fmt.Println("Task still running...")
+    time.Sleep(2 * time.Second)
+}
+```
+
 ## Workflow DSL
 
 ComfyKit supports a simple DSL for defining parameters in workflow titles:
@@ -135,6 +173,8 @@ Example node title: `"Prompt, $prompt!, $seed"`
 - `NewComfyKit(opts ...ComfyKitOption) *ComfyKit` - Create new ComfyKit instance
 - `Execute(workflow string, params map[string]interface{}) (*ExecuteResult, error)` - Execute workflow
 - `ExecuteJSON(workflowJSON map[string]interface{}, params map[string]interface{}) (*ExecuteResult, error)` - Execute workflow from JSON
+- `ExecuteAsyncByID(workflowID string, params map[string]interface{}) (string, map[string]string, error)` - Create task asynchronously
+- `GetTaskCompletion(taskID string, outputID2Var map[string]string) (*ExecuteResult, bool, error)` - Check task status
 - `Close() error` - Cleanup resources
 
 ### ExecuteResult
@@ -151,7 +191,7 @@ Example node title: `"Prompt, $prompt!, $seed"`
 
 ## Acknowledgments
 
-This project is inspired by and based on [ComfyKit-python](https://github.com/runninghubai/comfykit-python). We would like to thank the original project for its excellent design and implementation.
+This project is inspired by and based on [ComfyKit-python](https://https://github.com/puke3615/ComfyKit). We would like to thank the original project for its excellent design and implementation.
 
 ## License
 

@@ -48,6 +48,40 @@ func (k *ComfyKit) ExecuteJSON(workflowJSON map[string]interface{}, params map[s
 - `*ExecuteResult` - 执行结果
 - `error` - 错误信息
 
+### ExecuteAsyncByID
+
+异步创建 RunningHub 任务，不等待执行完成，立即返回任务 ID。
+
+```go
+func (k *ComfyKit) ExecuteAsyncByID(workflowID string, params map[string]interface{}) (string, map[string]string, error)
+```
+
+**参数**：
+- `workflowID` - RunningHub 工作流 ID
+- `params` - 参数映射
+
+**返回值**：
+- `string` - 任务 ID
+- `map[string]string` - 输出节点 ID 到变量名的映射
+- `error` - 错误信息
+
+### GetTaskCompletion
+
+检查任务状态，当任务完成时返回结果。
+
+```go
+func (k *ComfyKit) GetTaskCompletion(taskID string, outputID2Var map[string]string) (*ExecuteResult, bool, error)
+```
+
+**参数**：
+- `taskID` - 任务 ID
+- `outputID2Var` - 输出节点 ID 到变量名的映射（从 ExecuteAsyncByID 获取）
+
+**返回值**：
+- `*ExecuteResult` - 执行结果（仅在任务完成时有效）
+- `bool` - 是否完成
+- `error` - 错误信息
+
 ### Close
 
 清理资源。

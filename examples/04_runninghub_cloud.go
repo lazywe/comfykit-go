@@ -36,11 +36,11 @@ func exampleBasicCloudExecution() {
 		return
 	}
 
-	fmt.Printf("‚ú?Status: %s\n", result.Status)
+	fmt.Printf("ÔøΩ?Status: %s\n", result.Status)
 	if result.Status == "error" && result.Message != "" {
 		fmt.Printf("‚ö†Ô∏è  Error message: %s\n", result.Message)
 	} else {
-		fmt.Printf("‚ú?Images: %d\n", len(result.Images))
+		fmt.Printf("ÔøΩ?Images: %d\n", len(result.Images))
 	}
 }
 
@@ -66,7 +66,7 @@ func exampleCloudWithParams() {
 		return
 	}
 
-	fmt.Printf("‚ú?Status: %s\n", result.Status)
+	fmt.Printf("ÔøΩ?Status: %s\n", result.Status)
 	if result.Status == "error" && result.Message != "" {
 		fmt.Printf("‚ö†Ô∏è  Error message: %s\n", result.Message)
 	}
@@ -91,7 +91,7 @@ func exampleCloudWorkflowFile() {
 		return
 	}
 
-	fmt.Printf("‚ú?Status: %s\n", result.Status)
+	fmt.Printf("ÔøΩ?Status: %s\n", result.Status)
 	if result.Status == "error" && result.Message != "" {
 		fmt.Printf("‚ö†Ô∏è  Error message: %s\n", result.Message)
 	}
@@ -101,10 +101,10 @@ func exampleAutoDetection() {
 	fmt.Println("\n=== Example 4: Auto Detection ===")
 
 	// Auto-detects RunningHub ID (numeric string)
-	fmt.Println("‚ú?RunningHub ID format: pure numeric")
-	fmt.Println("‚ú?URL format: starts with http:// or https://")
-	fmt.Println("‚ú?File path: contains / or \\")
-	fmt.Println("‚ú?RunningHub workflow file: contains _source: runninghub")
+	fmt.Println("ÔøΩ?RunningHub ID format: pure numeric")
+	fmt.Println("ÔøΩ?URL format: starts with http:// or https://")
+	fmt.Println("ÔøΩ?File path: contains / or \\")
+	fmt.Println("ÔøΩ?RunningHub workflow file: contains _source: runninghub")
 }
 
 func exampleMixedExecution() {
@@ -116,10 +116,10 @@ func exampleMixedExecution() {
 	}
 
 	// Local execution
-	fmt.Println("‚ú?Local execution: kit.Execute('workflows/local.json', params)")
+	fmt.Println("ÔøΩ?Local execution: kit.Execute('workflows/local.json', params)")
 
 	// Cloud execution
-	fmt.Println("‚ú?Cloud execution: kit.Execute('12345', params)")
+	fmt.Println("ÔøΩ?Cloud execution: kit.Execute('12345', params)")
 }
 
 func main() {
@@ -133,6 +133,6 @@ func main() {
 	exampleMixedExecution()
 
 	fmt.Println("\n" + "=" + strings.Repeat("=", 59))
-	fmt.Println("‚ú?RunningHub cloud examples completed!")
+	fmt.Println("ÔøΩ?RunningHub cloud examples completed!")
 	fmt.Println("\nNext: Check out 05_advanced_features.go for advanced usage")
 }
